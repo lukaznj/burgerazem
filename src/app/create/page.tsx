@@ -1,6 +1,23 @@
-import { Box, Container, Typography, Button, TextField } from "@mui/material";
+// src/app/create/page.tsx
 
-export default function Page() {
+import { Container, Typography, Button, Box } from "@mui/material";
+import { auth } from "@clerk/nextjs/server"; // Import auth for server-side protection
+import { redirect } from "next/navigation";
+import { createNewOrderAction } from "./actions"; // <-- New Server Action
+
+export default async function CreatePage() {
+  // 1. PROTECT THE ROUTE:
+  // Get the authenticated user ID. If not logged in, Clerk redirects automatically.
+  const { userId } = auth();
+
+  // 2. Fallback check (shouldn't be strictly necessary if middleware/auth() works)
+  if (!userId) {
+    // If auth() somehow passes or is misconfigured, redirect manually.
+    redirect("/");
+  }
+
+  // The content is only rendered if the user is authenticated.
+
   return (
     <Container
       sx={{
@@ -22,22 +39,38 @@ export default function Page() {
           mb: 1,
         }}
       >
-        Unesi svoje ime
+        Dobrodošao/la!
       </Typography>
-      <TextField required id="outlined-required" label="Ime" />
-      <Button
-        variant="contained"
-        size="large"
+
+      <Typography
+        variant="h6"
         sx={{
-          // px: 5,
-          // py: 5,
-          my: 5,
-          fontSize: 20,
-          fontWeight: 500,
+          textAlign: "center",
+          color: "text.secondary",
+          maxWidth: "400px",
         }}
       >
-        Započni narudžbu
-      </Button>
+        Spremni za novi Burgeražem? Klikni ispod za početak.
+      </Typography>
+
+      {/* 
+        3. Form wrapper for the Server Action 
+        We use a form with the action prop to trigger the DB logic. 
+      */}
+      <form action={createNewOrderAction}>
+        <Button
+          type="submit" // Crucial: This button submits the form and triggers the action
+          variant="contained"
+          size="large"
+          sx={{
+            my: 5,
+            fontSize: 20,
+            fontWeight: 500,
+          }}
+        >
+          Započni narudžbu
+        </Button>
+      </form>
     </Container>
   );
 }

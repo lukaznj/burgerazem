@@ -1,16 +1,15 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { AppBar, Toolbar, Box } from "@mui/material";
+import { AppBar, Toolbar, Box, Button } from "@mui/material"; // <-- Ensure Button is imported
 import BurgerazemLogo from "@/components/BurgerazemLogo";
 import LunchDiningOutlinedIcon from "@mui/icons-material/LunchDiningOutlined";
 import ThemeRegistry from "@/components/ThemeRegistry";
-// Import ClerkProvider
 import {
   ClerkProvider,
   SignedIn,
   SignedOut,
-  SignInButton,
   UserButton,
+  SignInButton,
 } from "@clerk/nextjs";
 
 export const metadata: Metadata = {
@@ -26,12 +25,23 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    // 1. ADD afterSignOutUrl HERE (and optionally other global URLs)
+    // ClerkProvider with global configuration
     <ClerkProvider
       afterSignOutUrl="/"
-      // You might also add:
-      // afterSignInUrl="/dashboard"
-      // afterSignUpUrl="/onboarding"
+      // Optional: Appearance to match your orange theme in modals/widgets
+      appearance={{
+        variables: {
+          colorPrimary: "#ff8c00",
+        },
+        elements: {
+          formButtonPrimary: {
+            backgroundColor: "#ff8c00",
+            "&:hover": {
+              backgroundColor: "#e67300",
+            },
+          },
+        },
+      }}
     >
       <html lang="hr">
         <body>
@@ -40,6 +50,7 @@ export default function RootLayout({
               <Toolbar
                 sx={{ minHeight: `${APP_BAR_HEIGHT} !important`, py: 1 }}
               >
+                {/* Logo and Icon Section */}
                 <Box
                   sx={{ display: "flex", alignItems: "center", flexGrow: 1 }}
                 >
@@ -49,18 +60,48 @@ export default function RootLayout({
                   <BurgerazemLogo fill="#ff8c00" width={150} height="auto" />
                 </Box>
 
-                {/* --- CLERK BUTTON --- */}
-                <SignedIn>
-                  {/* 2. REMOVE afterSignOutUrl from here */}
-                  <UserButton />
-                </SignedIn>
-                <SignedOut>
-                  <SignInButton mode="modal" />
-                </SignedOut>
-                {/* --------------------- */}
+                {/* Authentication Section (Right) */}
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  {" "}
+                  {/* Reduced gap for UserButton */}
+                  <SignedIn>
+                    {/* Shows the user profile button */}
+                    <UserButton />
+                  </SignedIn>
+                  <SignedOut>
+                    {/* Use asChild to style the Clerk button with MUI */}
+                    <SignInButton mode="modal">
+                      <Button
+                        variant="contained"
+                        size="small"
+                        sx={{
+                          bgcolor: "primary.main",
+                          color: "#fff",
+                          fontWeight: 600,
+                          textTransform: "none", // Optional: Keep button text case-sensitive
+                          "&:hover": {
+                            bgcolor: "primary.dark",
+                          },
+                        }}
+                      >
+                        Prijavi se
+                      </Button>
+                    </SignInButton>
+                  </SignedOut>
+                </Box>
               </Toolbar>
             </AppBar>
-            {/* ... main content Box ... */}
+
+            {/* Main Content Area */}
+            <Box
+              component="main"
+              sx={{
+                marginTop: APP_BAR_HEIGHT,
+                minHeight: "100vh",
+              }}
+            >
+              {children}
+            </Box>
           </ThemeRegistry>
         </body>
       </html>
