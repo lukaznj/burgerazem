@@ -1,18 +1,16 @@
 // src/app/create/page.tsx
 
 import { Container, Typography, Button, Box } from "@mui/material";
-import { auth } from "@clerk/nextjs/server"; // Import auth for server-side protection
+import {auth, currentUser} from "@clerk/nextjs/server"; // Import auth for server-side protection
 import { redirect } from "next/navigation";
 import { createNewOrderAction } from "./actions"; // <-- New Server Action
 
 export default async function Page() {
   // 1. PROTECT THE ROUTE:
   // Get the authenticated user ID. If not logged in, Clerk redirects automatically.
-  //const authObject = await auth();
-
-  const { userId } = auth();
-
-  // The content is only rendered if the user is authenticated.
+  const authObject = await auth();
+  const user = await currentUser();
+  const firstName = user?.firstName;
 
   return (
     <Container
@@ -35,7 +33,7 @@ export default async function Page() {
           mb: 1,
         }}
       >
-        Dobrodošao/la! {userId}
+        Bok {firstName}!
       </Typography>
 
       <Typography

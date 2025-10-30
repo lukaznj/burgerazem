@@ -1,7 +1,7 @@
 // src/app/create/actions.ts
 
 "use server"; // <-- CRUCIAL: Must be at the very top
-import { auth } from "@clerk/nextjs/server";
+import {auth, currentUser} from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import dbConnect from "@/utils/dbConnect"; // <-- Assuming utils/dbConnect.ts path
 import Order from "@/models/Order"; // <-- Your new Mongoose model
@@ -12,7 +12,8 @@ import Order from "@/models/Order"; // <-- Your new Mongoose model
  */
 export async function createNewOrderAction(formData: FormData) {
   // 1. Get User ID from Clerk (Server-Side)
-  const { userId } = auth();
+  const user = await currentUser();
+  const userId = user?.id;
 
   try {
     // 2. Connect to the cached MongoDB instance

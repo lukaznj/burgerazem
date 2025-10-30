@@ -66,7 +66,7 @@ export default function RootLayout({
                   {/* Reduced gap for UserButton */}
                   <SignedIn>
                     {/* Shows the user profile button */}
-                    <UserButton />
+                    <UserButton showName />
                   </SignedIn>
                   <SignedOut>
                     {/* Use asChild to style the Clerk button with MUI */}
