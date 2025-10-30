@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { getItemsByType, createItem, updateItem, deleteItem } from "./actions";
 import {
   Table,
   TableBody,
@@ -21,6 +22,7 @@ import {
   Button,
   IconButton,
   Fab,
+  CircularProgress,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -55,21 +57,15 @@ export default function Page() {
   const fetchItems = async () => {
     try {
       setLoading(true);
-      const [drinksRes, burgerPartsRes, desertsRes] = await Promise.all([
-        fetch("/api/items?type=drinks"),
-        fetch("/api/items?type=burgerParts"),
-        fetch("/api/items?type=deserts"),
-      ]);
-
       const [drinksData, burgerPartsData, desertsData] = await Promise.all([
-        drinksRes.json(),
-        burgerPartsRes.json(),
-        desertsRes.json(),
+        getItemsByType("drinks"),
+        getItemsByType("burgerParts"),
+        getItemsByType("deserts"),
       ]);
 
-      if (drinksData.success) setDrinks(drinksData.data);
-      if (burgerPartsData.success) setBurgerParts(burgerPartsData.data);
-      if (desertsData.success) setDeserts(desertsData.data);
+      if (drinksData.success && drinksData.data) setDrinks(drinksData.data);
+      if (burgerPartsData.success && burgerPartsData.data) setBurgerParts(burgerPartsData.data);
+      if (desertsData.success && desertsData.data) setDeserts(desertsData.data);
     } catch (error) {
       console.error("Error fetching items:", error);
     } finally {
@@ -111,22 +107,14 @@ export default function Page() {
     if (!editingItem) return;
 
     try {
-      const response = await fetch(`/api/items/${editingItem._id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+      const result = await updateItem(editingItem._id, formData);
 
-      const data = await response.json();
-
-      if (data.success) {
+      if (result.success) {
         // Refresh the items
         await fetchItems();
         handleEditClose();
       } else {
-        alert("Failed to update item: " + data.error);
+        alert("Failed to update item: " + result.error);
       }
     } catch (error) {
       console.error("Error updating item:", error);
@@ -140,17 +128,13 @@ export default function Page() {
     }
 
     try {
-      const response = await fetch(`/api/items/${item._id}`, {
-        method: "DELETE",
-      });
+      const result = await deleteItem(item._id);
 
-      const data = await response.json();
-
-      if (data.success) {
+      if (result.success) {
         // Refresh the items
         await fetchItems();
       } else {
-        alert("Failed to delete item: " + data.error);
+        alert("Failed to delete item: " + result.error);
       }
     } catch (error) {
       console.error("Error deleting item:", error);
@@ -211,26 +195,18 @@ export default function Page() {
       // Then, create the item with the image path
       const itemType = currentTab === 0 ? "drinks" : currentTab === 1 ? "burgerParts" : "deserts";
 
-      const response = await fetch("/api/items", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ...formData,
-          imagePath: uploadData.data.imagePath,
-          type: itemType,
-        }),
+      const result = await createItem({
+        ...formData,
+        imagePath: uploadData.data.imagePath,
+        type: itemType,
       });
 
-      const data = await response.json();
-
-      if (data.success) {
+      if (result.success) {
         // Refresh the items
         await fetchItems();
         handleAddClose();
       } else {
-        alert("Failed to create item: " + data.error);
+        alert("Failed to create item: " + result.error);
       }
     } catch (error) {
       console.error("Error creating item:", error);
@@ -313,9 +289,17 @@ export default function Page() {
           <Tab label="Deserts" />
         </Tabs>
       </Box>
-      {currentTab === 0 && renderTable(drinks)}
-      {currentTab === 1 && renderTable(burgerParts)}
-      {currentTab === 2 && renderTable(deserts)}
+      {loading ? (
+        <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
+          <CircularProgress />
+        </Box>
+      ) : (
+        <>
+          {currentTab === 0 && renderTable(drinks)}
+          {currentTab === 1 && renderTable(burgerParts)}
+          {currentTab === 2 && renderTable(deserts)}
+        </>
+      )}
 
       {/* Floating Action Button for Add */}
       <Fab

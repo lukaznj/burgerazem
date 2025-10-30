@@ -9,20 +9,27 @@
   - Added index on `type` field for efficient querying
   - Extends Mongoose Document for proper typing
 
-### 2. API Routes Created
+### 2. Server Actions Created
 
-#### Items Management
-- **GET /api/items** - Fetch all items or filter by type
-- **POST /api/items** - Create new item
-- **GET /api/items/[id]** - Fetch single item by ID
-- **PUT /api/items/[id]** - Update item (name, description, amount only)
-- **DELETE /api/items/[id]** - Delete item by ID
+#### Items Management (`src/app/admin/manage/actions.ts`)
+- **getItemsByType(type)** - Fetch all items of a specific type
+- **createItem(data)** - Create new item
+- **updateItem(id, data)** - Update item (name, description, amount only)
+- **deleteItem(id)** - Delete item by ID
 
-#### File Upload
+Benefits of Server Actions:
+- ✅ Better performance (no additional HTTP round-trip)
+- ✅ Automatic revalidation with `revalidatePath()`
+- ✅ Type-safe end-to-end
+- ✅ Integrated with Next.js caching
+- ✅ Perfect for serverless environments
+
+#### File Upload API
 - **POST /api/upload** - Upload images to server
   - Stores files in `public/uploads/items/`
   - Generates unique filenames with timestamps
   - Returns public URL path for database storage
+  - Kept as API route for FormData handling
 
 ### 3. Frontend Integration (`src/app/admin/manage/page.tsx`)
 
@@ -56,12 +63,9 @@ src/
 ├── app/
 │   ├── admin/
 │   │   └── manage/
-│   │       └── page.tsx (connected to database)
+│   │       ├── page.tsx (UI connected to server actions)
+│   │       └── actions.ts (server actions for CRUD)
 │   └── api/
-│       ├── items/
-│       │   ├── route.ts (GET all, POST create)
-│       │   └── [id]/
-│       │       └── route.ts (GET one, PUT update, DELETE)
 │       ├── upload/
 │       │   └── route.ts (POST upload image)
 │       └── README.md (API documentation)
