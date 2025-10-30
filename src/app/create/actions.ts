@@ -22,7 +22,6 @@ export async function createNewOrderAction(formData: FormData) {
     if (existingOrder) {
       console.log(`Existing order found for user ${userId}. Continuing...`);
       redirect("/create/drinks");
-      return;
     }
 
     const newOrder = await Order.create({
