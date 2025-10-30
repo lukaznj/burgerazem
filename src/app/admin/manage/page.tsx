@@ -32,7 +32,7 @@ interface Item {
   _id: string;
   name: string;
   description: string;
-  amount: number;
+  quantity: number;
   imagePath: string;
 }
 
@@ -44,7 +44,7 @@ export default function Page() {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    amount: 0,
+    quantity: 0,
   });
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("");
@@ -86,7 +86,7 @@ export default function Page() {
     setFormData({
       name: item.name,
       description: item.description,
-      amount: item.amount,
+      quantity: item.quantity,
     });
     setEditDialogOpen(true);
   };
@@ -146,7 +146,7 @@ export default function Page() {
     setFormData({
       name: "",
       description: "",
-      amount: 0,
+      quantity: 0,
     });
     setSelectedImage(null);
     setImagePreview("");
@@ -232,9 +232,10 @@ export default function Page() {
       <Table>
         <TableHead>
           <TableRow>
+            <TableCell>ID</TableCell>
             <TableCell>Name</TableCell>
             <TableCell>Description</TableCell>
-            <TableCell align="right">Amount</TableCell>
+            <TableCell align="right">Quantity</TableCell>
             <TableCell align="center">Actions</TableCell>
           </TableRow>
         </TableHead>
@@ -248,9 +249,10 @@ export default function Page() {
           ) : (
             data.map((item) => (
               <TableRow key={item._id}>
+                <TableCell>{item._id}</TableCell>
                 <TableCell>{item.name}</TableCell>
                 <TableCell>{item.description}</TableCell>
-                <TableCell align="right">{item.amount}</TableCell>
+                <TableCell align="right">{item.quantity}</TableCell>
                 <TableCell align="center">
                   <IconButton
                     color="primary"
@@ -333,15 +335,15 @@ export default function Page() {
               onChange={(e) => handleFormChange("description", e.target.value)}
             />
             <TextField
-              label="Amount"
+              label="Quantity"
               type="number"
               fullWidth
-              value={formData.amount}
+              value={formData.quantity}
               onChange={(e) =>
-                handleFormChange("amount", parseFloat(e.target.value) || 0)
+                handleFormChange("quantity", parseInt(e.target.value) || 0)
               }
               slotProps={{
-                htmlInput: { min: 0, step: 0.01 }
+                htmlInput: { min: 0, step: 1 }
               }}
             />
           </Box>
@@ -376,15 +378,15 @@ export default function Page() {
               required
             />
             <TextField
-              label="Amount"
+              label="Quantity"
               type="number"
               fullWidth
-              value={formData.amount}
+              value={formData.quantity}
               onChange={(e) =>
-                handleFormChange("amount", parseFloat(e.target.value) || 0)
+                handleFormChange("quantity", parseInt(e.target.value) || 0)
               }
               slotProps={{
-                htmlInput: { min: 0, step: 0.01 }
+                htmlInput: { min: 0, step: 1 }
               }}
               required
             />

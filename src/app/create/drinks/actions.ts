@@ -8,7 +8,7 @@ interface DrinkItem {
   _id: string;
   name: string;
   description: string;
-  amount: number;
+  quantity: number;
   imagePath: string;
   type: string;
   createdAt?: string;
@@ -22,7 +22,8 @@ export async function getDrinks(): Promise<
 > {
   try {
     await dbConnect();
-    const drinks = await Item.find({ type: "drinks" }).sort({ name: 1 }).lean();
+    // Only return drinks that are in stock
+    const drinks = await Item.find({ type: "drinks", quantity: { $gt: 0 } }).sort({ name: 1 }).lean();
 
     // Convert MongoDB documents to plain objects with string IDs
     return {
@@ -31,7 +32,7 @@ export async function getDrinks(): Promise<
         _id: (drink._id as Types.ObjectId).toString(),
         name: drink.name as string,
         description: drink.description as string,
-        amount: drink.amount as number,
+        quantity: drink.quantity as number,
         imagePath: drink.imagePath as string,
         type: drink.type as string,
         createdAt: drink.createdAt?.toISOString(),
