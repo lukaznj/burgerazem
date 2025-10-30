@@ -5,9 +5,20 @@ import { Types } from "mongoose";
 import dbConnect from "@/utils/dbConnect";
 import Item, { ItemType } from "@/models/Item";
 
+interface ItemData {
+  _id: string;
+  name: string;
+  description: string;
+  quantity: number;
+  imagePath: string;
+  type: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 // Fetch items by type
 export async function getItemsByType(type: ItemType): Promise<
-  | { success: true; data: Array<any> }
+  | { success: true; data: ItemData[] }
   | { success: false; error: string }
 > {
   try {
@@ -18,8 +29,12 @@ export async function getItemsByType(type: ItemType): Promise<
     return {
       success: true,
       data: items.map(item => ({
-        ...item,
         _id: (item._id as Types.ObjectId).toString(),
+        name: item.name as string,
+        description: item.description as string,
+        quantity: item.quantity as number,
+        imagePath: item.imagePath as string,
+        type: item.type as string,
         createdAt: item.createdAt?.toISOString(),
         updatedAt: item.updatedAt?.toISOString(),
       })),
@@ -34,7 +49,7 @@ export async function getItemsByType(type: ItemType): Promise<
 export async function createItem(data: {
   name: string;
   description: string;
-  amount: number;
+  quantity: number;
   imagePath: string;
   type: ItemType;
 }) {
@@ -42,7 +57,7 @@ export async function createItem(data: {
     await dbConnect();
 
     // Validate required fields
-    if (!data.name || !data.description || data.amount === undefined || !data.imagePath || !data.type) {
+    if (!data.name || !data.description || data.quantity === undefined || !data.imagePath || !data.type) {
       return { success: false, error: "Missing required fields" };
     }
 
@@ -75,17 +90,17 @@ export async function updateItem(
   data: {
     name?: string;
     description?: string;
-    amount?: number;
+    quantity?: number;
   }
 ) {
   try {
     await dbConnect();
 
     // Only allow updating these fields
-    const updateData: Partial<{ name: string; description: string; amount: number }> = {};
+    const updateData: Partial<{ name: string; description: string; quantity: number }> = {};
     if (data.name !== undefined) updateData.name = data.name;
     if (data.description !== undefined) updateData.description = data.description;
-    if (data.amount !== undefined) updateData.amount = data.amount;
+    if (data.quantity !== undefined) updateData.quantity = data.quantity;
 
     const item = await Item.findByIdAndUpdate(
       id,

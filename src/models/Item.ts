@@ -6,7 +6,7 @@ export interface IItem extends Document {
   _id: string;
   name: string;
   description: string;
-  amount: number;
+  quantity: number;
   imagePath: string;
   type: ItemType;
 }
@@ -21,11 +21,12 @@ const ItemSchema = new Schema<IItem>(
       type: String,
       required: true,
     },
-    amount: {
-      type: Number,
-      required: true,
-      min: 0,
-    },
+  quantity: {
+    type: Number,
+    required: true,
+    min: 0,
+    default: 0,
+  },
     imagePath: {
       type: String,
       required: true,
