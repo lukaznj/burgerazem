@@ -232,7 +232,6 @@ export default function Page() {
       <Table>
         <TableHead>
           <TableRow>
-            <TableCell>ID</TableCell>
             <TableCell>Name</TableCell>
             <TableCell>Description</TableCell>
             <TableCell align="right">Amount</TableCell>
@@ -249,7 +248,6 @@ export default function Page() {
           ) : (
             data.map((item) => (
               <TableRow key={item._id}>
-                <TableCell>{item._id}</TableCell>
                 <TableCell>{item.name}</TableCell>
                 <TableCell>{item.description}</TableCell>
                 <TableCell align="right">{item.amount}</TableCell>
