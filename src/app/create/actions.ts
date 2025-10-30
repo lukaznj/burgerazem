@@ -14,11 +14,6 @@ export async function createNewOrderAction(formData: FormData) {
   // 1. Get User ID from Clerk (Server-Side)
   const { userId } = auth();
 
-  if (!userId) {
-    // Should not happen if page is protected, but good for safety
-    throw new Error("Authentication failed. Please sign in.");
-  }
-
   try {
     // 2. Connect to the cached MongoDB instance
     await dbConnect();

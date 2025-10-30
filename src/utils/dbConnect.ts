@@ -1,13 +1,13 @@
 // lib/dbConnect.ts
 
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 // 1. Check if the MongoDB URI is defined
 const MONGODB_URI = process.env.MONGODB_URI;
 
 if (!MONGODB_URI) {
   throw new Error(
-    'Please define the MONGODB_URI environment variable inside .env.local or Vercel settings'
+    "Please define the MONGODB_URI environment variable inside .env.local or Vercel settings",
   );
 }
 
@@ -21,7 +21,6 @@ interface MongooseCache {
 
 // Extend the global object to hold our mongoose cache
 declare global {
-   
   var mongoose: MongooseCache;
 }
 
@@ -33,15 +32,14 @@ if (!cached) {
   cached = global.mongoose = { conn: null, promise: null };
 }
 
-
 /**
  * Establishes a cached MongoDB connection using Mongoose.
  * @returns {Promise<typeof mongoose>} The Mongoose connection object.
  */
-async function dbConnect() {
+async function dbConnect(): Promise<typeof mongoose> {
   // 4. Return the existing connection if it is available
   if (cached.conn) {
-    console.log('Using existing MongoDB connection.');
+    console.log("Using existing MongoDB connection.");
     return cached.conn;
   }
 

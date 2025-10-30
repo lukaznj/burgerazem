@@ -5,16 +5,12 @@ import { auth } from "@clerk/nextjs/server"; // Import auth for server-side prot
 import { redirect } from "next/navigation";
 import { createNewOrderAction } from "./actions"; // <-- New Server Action
 
-export default async function CreatePage() {
+export default async function Page() {
   // 1. PROTECT THE ROUTE:
   // Get the authenticated user ID. If not logged in, Clerk redirects automatically.
-  const { userId } = auth();
+  //const authObject = await auth();
 
-  // 2. Fallback check (shouldn't be strictly necessary if middleware/auth() works)
-  if (!userId) {
-    // If auth() somehow passes or is misconfigured, redirect manually.
-    redirect("/");
-  }
+  const { userId } = auth();
 
   // The content is only rendered if the user is authenticated.
 
@@ -39,7 +35,7 @@ export default async function CreatePage() {
           mb: 1,
         }}
       >
-        Dobrodošao/la!
+        Dobrodošao/la! {userId}
       </Typography>
 
       <Typography
