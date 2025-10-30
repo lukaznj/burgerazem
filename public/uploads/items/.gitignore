@@ -1,0 +1,4 @@
+# Ignore uploaded images (they should be in cloud storage in production)
+*
+!.gitignore
+
