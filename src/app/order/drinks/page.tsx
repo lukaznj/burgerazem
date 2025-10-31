@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { getDrinks } from "./actions";
 import { saveDrinkSelection } from "../order-actions";
+import { hasInProgressOrderOfType } from "../order-status-actions";
 import {
   Box,
   Card,
@@ -34,6 +35,17 @@ export default function Page() {
   const [saving, setSaving] = useState(false);
 
   const isInitialMount = useRef(true);
+
+  // Check if user already has a drink order
+  useEffect(() => {
+    const checkExistingOrder = async () => {
+      const hasDrinkOrder = await hasInProgressOrderOfType("drink");
+      if (hasDrinkOrder) {
+        router.replace("/order");
+      }
+    };
+    checkExistingOrder();
+  }, [router]);
 
   useEffect(() => {
     const fetchDrinks = async () => {
@@ -92,7 +104,7 @@ export default function Page() {
       try {
         const result = await saveDrinkSelection(selectedDrink);
         if (result.success) {
-          router.push("/create/burger");
+          router.push("/order/burger");
         } else {
           alert("Failed to save drink selection: " + result.error);
           setSaving(false);

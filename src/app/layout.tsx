@@ -4,6 +4,7 @@ import { AppBar, Toolbar, Box, Button } from "@mui/material";
 import BurgerazemLogo from "@/components/BurgerazemLogo";
 import LunchDiningOutlinedIcon from "@mui/icons-material/LunchDiningOutlined";
 import ThemeRegistry from "@/components/ThemeRegistry";
+import Link from "next/link";
 import {
   ClerkProvider,
   SignedIn,
@@ -49,14 +50,16 @@ export default function RootLayout({
               <Toolbar
                 sx={{ minHeight: `${APP_BAR_HEIGHT} !important`, py: 1 }}
               >
-                <Box
-                  sx={{ display: "flex", alignItems: "center", flexGrow: 1 }}
-                >
-                  <LunchDiningOutlinedIcon
-                    sx={{ fontSize: 30, color: "primary.main", mr: 1 }}
-                  />
-                  <BurgerazemLogo fill="#ff8c00" width={150} height="auto" />
-                </Box>
+                <Link href="/order" style={{ textDecoration: "none", display: "flex", alignItems: "center", flexGrow: 1 }}>
+                  <Box
+                    sx={{ display: "flex", alignItems: "center", cursor: "pointer" }}
+                  >
+                    <LunchDiningOutlinedIcon
+                      sx={{ fontSize: 30, color: "primary.main", mr: 1 }}
+                    />
+                    <BurgerazemLogo fill="#ff8c00" width={150} height="auto" />
+                  </Box>
+                </Link>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                   {" "}
                   <SignedIn>

@@ -2,8 +2,17 @@ import { Button, Typography, Box } from "@mui/material";
 import BurgerazemLogo from "@/components/BurgerazemLogo";
 import LunchDiningOutlinedIcon from "@mui/icons-material/LunchDiningOutlined";
 import Link from "next/link";
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 
-export default function Home() {
+export default async function Home() {
+  const { userId } = await auth();
+
+  // Redirect logged-in users to /order
+  if (userId) {
+    redirect("/order");
+  }
+
   return (
     <Box
       sx={{
@@ -38,7 +47,7 @@ export default function Home() {
           mb: 4,
         }}
       />
-      <Link href="/create" passHref style={{ textDecoration: "none" }}>
+      <Link href="/order" passHref style={{ textDecoration: "none" }}>
         <Button
           variant="contained"
           size="large"

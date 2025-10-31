@@ -11,11 +11,18 @@ const OrderSchema = new mongoose.Schema(
       enum: ["in-progress", "completed", "canceled"],
       default: "in-progress",
     },
-    drinkId: {
+    orderType: {
+      type: String,
+      enum: ["drink", "burger", "dessert"],
+      required: true,
+    },
+    // For drink and dessert orders (single item)
+    itemId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Item",
       required: false,
     },
+    // For burger orders (multiple ingredients)
     burgerIngredients: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -28,8 +35,9 @@ const OrderSchema = new mongoose.Schema(
   }
 );
 
-// Index for finding in-progress orders by user
+// Index for finding orders by user and status
 OrderSchema.index({ clerkUserId: 1, status: 1 });
+OrderSchema.index({ orderType: 1, status: 1 });
 
 const Order = mongoose.models.Order || mongoose.model("Order", OrderSchema);
 

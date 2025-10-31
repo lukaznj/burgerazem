@@ -14,6 +14,7 @@ import {
 } from "@mui/material";
 import { getBurgerIngredients } from "./actions";
 import { saveBurgerIngredients } from "../order-actions";
+import { hasInProgressOrderOfType } from "../order-status-actions";
 
 interface Ingredient {
   _id: string;
@@ -29,6 +30,17 @@ export default function Page() {
   const [selectedIngredients, setSelectedIngredients] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+
+  // Check if user already has a burger order
+  useEffect(() => {
+    const checkExistingOrder = async () => {
+      const hasBurgerOrder = await hasInProgressOrderOfType("burger");
+      if (hasBurgerOrder) {
+        router.replace("/order");
+      }
+    };
+    checkExistingOrder();
+  }, [router]);
 
   useEffect(() => {
     const fetchIngredients = async () => {
@@ -68,7 +80,7 @@ export default function Page() {
       const result = await saveBurgerIngredients(Array.from(selectedIngredients));
       if (result.success) {
         // TODO: Navigate to next step or confirmation page
-        router.push("/create/confirmation");
+        router.push("/order/confirmation");
       } else {
         alert("Failed to save burger: " + result.error);
         setSaving(false);

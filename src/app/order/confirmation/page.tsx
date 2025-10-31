@@ -38,9 +38,9 @@ export default function Page() {
         <Button
           variant="contained"
           size="large"
-          onClick={() => router.push("/")}
+          onClick={() => router.push("/order")}
         >
-          Back to Home
+          Back to Orders
         </Button>
       </Box>
     </Container>

@@ -424,7 +424,7 @@ export default function Page() {
               value={formData.description}
               onChange={(e) => handleFormChange("description", e.target.value)}
             />
-            {currentTab !== 1 && (
+            {currentTab === 0 && (
               <TextField
                 label="Quantity"
                 type="number"
@@ -485,7 +485,7 @@ export default function Page() {
               onChange={(e) => handleFormChange("description", e.target.value)}
               required
             />
-            {currentTab !== 1 && (
+            {currentTab === 0 && (
               <TextField
                 label="Quantity"
                 type="number"

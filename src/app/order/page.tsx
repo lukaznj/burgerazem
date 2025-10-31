@@ -17,14 +17,15 @@ import {
 import LocalBarIcon from "@mui/icons-material/LocalBar";
 import FastfoodIcon from "@mui/icons-material/Fastfood";
 import IcecreamIcon from "@mui/icons-material/Icecream";
-import { getCurrentOrder } from "./order-status-actions";
+import { getCurrentOrders } from "./order-status-actions";
 
 interface OrderData {
   _id: string;
   status: string;
-  drinkName?: string;
-  drinkImage?: string;
-  burgerIngredients: Array<{
+  orderType: "drink" | "burger" | "dessert";
+  itemName?: string;
+  itemImage?: string;
+  burgerIngredients?: Array<{
     name: string;
     category: string;
   }>;
@@ -34,35 +35,51 @@ interface OrderData {
 export default function Page() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
-  const [currentOrder, setCurrentOrder] = useState<OrderData | null>(null);
+  const [currentOrders, setCurrentOrders] = useState<OrderData[]>([]);
   const [hasInProgressDrink, setHasInProgressDrink] = useState(false);
   const [hasInProgressBurger, setHasInProgressBurger] = useState(false);
 
   useEffect(() => {
-    const fetchOrderStatus = async () => {
+    const fetchOrderStatus = async (isInitial = false) => {
       try {
-        setLoading(true);
-        const result = await getCurrentOrder();
+        if (isInitial) {
+          setLoading(true);
+        }
+        const result = await getCurrentOrders();
         if (result.success) {
-          setCurrentOrder(result.data);
+          // Only update state if orders actually changed
+          setCurrentOrders(prevOrders => {
+            const hasChanged = JSON.stringify(prevOrders) !== JSON.stringify(result.data);
+            return hasChanged ? result.data : prevOrders;
+          });
           setHasInProgressDrink(result.hasInProgressDrink);
           setHasInProgressBurger(result.hasInProgressBurger);
         }
       } catch (error) {
         console.error("Error fetching order status:", error);
       } finally {
-        setLoading(false);
+        if (isInitial) {
+          setLoading(false);
+        }
       }
     };
 
-    fetchOrderStatus();
+    // Initial fetch
+    fetchOrderStatus(true);
+
+    // Poll for updates every 3 seconds
+    const interval = setInterval(() => {
+      fetchOrderStatus(false);
+    }, 3000);
+
+    return () => clearInterval(interval);
   }, []);
 
   const handleOrderClick = (type: "drink" | "burger" | "desert") => {
     if (type === "drink" && !hasInProgressDrink) {
-      router.push("/create/drinks");
+      router.push("/order/drinks");
     } else if (type === "burger" && !hasInProgressBurger) {
-      router.push("/create/burger");
+      router.push("/order/burger");
     }
     // Desert is disabled for now
   };
@@ -191,60 +208,69 @@ export default function Page() {
         </Card>
       </Box>
 
-      {/* Current Order Section */}
-      {currentOrder && (
+      {/* Current Orders Section */}
+      {currentOrders.length > 0 && (
         <Box sx={{ mt: 6 }}>
           <Typography variant="h4" component="h2" gutterBottom sx={{ fontWeight: "bold", mb: 3 }}>
-            Current Order
+            Current Orders
           </Typography>
 
-          <Paper elevation={3} sx={{ p: 3 }}>
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-              {/* Drink Section */}
-              {currentOrder.drinkName && (
-                <Box>
-                  <Typography variant="h6" gutterBottom sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <LocalBarIcon color="primary" />
-                    Drink
-                  </Typography>
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 2, ml: 4 }}>
-                    {currentOrder.drinkImage && (
-                      <Box
-                        component="img"
-                        src={currentOrder.drinkImage}
-                        alt={currentOrder.drinkName}
-                        sx={{
-                          width: 60,
-                          height: 60,
-                          borderRadius: 1,
-                          objectFit: "cover",
-                        }}
-                      />
-                    )}
-                    <Typography variant="body1" sx={{ fontWeight: "medium" }}>
-                      {currentOrder.drinkName}
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            {currentOrders.map((order, index) => (
+              <Paper key={order._id} elevation={3} sx={{ p: 3 }}>
+                <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                  {/* Order Type Header */}
+                  <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <Typography variant="h6" sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      {order.orderType === "drink" && <LocalBarIcon color="primary" />}
+                      {order.orderType === "burger" && <FastfoodIcon color="primary" />}
+                      {order.orderType === "dessert" && <IcecreamIcon color="primary" />}
+                      {order.orderType.charAt(0).toUpperCase() + order.orderType.slice(1)}
                     </Typography>
+                    <Chip
+                      label={order.status === "in-progress" ? "In Progress" : order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                      color={
+                        order.status === "in-progress" ? "warning" :
+                        order.status === "completed" ? "success" :
+                        order.status === "canceled" ? "error" :
+                        "default"
+                      }
+                      size="small"
+                    />
                   </Box>
-                </Box>
-              )}
 
-              {/* Burger Section */}
-              {currentOrder.burgerIngredients.length > 0 && (
-                <>
-                  {currentOrder.drinkName && <Divider />}
-                  <Box>
-                    <Typography variant="h6" gutterBottom sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      <FastfoodIcon color="primary" />
-                      Burger
-                    </Typography>
+                  {/* Drink/Dessert Display */}
+                  {(order.orderType === "drink" || order.orderType === "dessert") && order.itemName && (
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 2, ml: 4 }}>
+                      {order.itemImage && (
+                        <Box
+                          component="img"
+                          src={order.itemImage}
+                          alt={order.itemName}
+                          sx={{
+                            width: 60,
+                            height: 60,
+                            borderRadius: 1,
+                            objectFit: "cover",
+                          }}
+                        />
+                      )}
+                      <Typography variant="body1" sx={{ fontWeight: "medium" }}>
+                        {order.itemName}
+                      </Typography>
+                    </Box>
+                  )}
+
+                  {/* Burger Display */}
+                  {order.orderType === "burger" && order.burgerIngredients && order.burgerIngredients.length > 0 && (
                     <Box sx={{ ml: 4 }}>
                       <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                        Ingredients ({currentOrder.burgerIngredients.length}):
+                        Ingredients ({order.burgerIngredients.length}):
                       </Typography>
                       <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mt: 1 }}>
-                        {currentOrder.burgerIngredients.map((ingredient, index) => (
+                        {order.burgerIngredients.map((ingredient, idx) => (
                           <Chip
-                            key={index}
+                            key={idx}
                             label={ingredient.name}
                             size="small"
                             variant="outlined"
@@ -252,23 +278,23 @@ export default function Page() {
                         ))}
                       </Box>
                     </Box>
-                  </Box>
-                </>
-              )}
+                  )}
 
-              {/* Order Time */}
-              <Box sx={{ mt: 2, pt: 2, borderTop: 1, borderColor: "divider" }}>
-                <Typography variant="caption" color="text.secondary">
-                  Order started: {new Date(currentOrder.createdAt).toLocaleString()}
-                </Typography>
-              </Box>
-            </Box>
-          </Paper>
+                  {/* Order Time */}
+                  <Box sx={{ mt: 1, pt: 2, borderTop: 1, borderColor: "divider" }}>
+                    <Typography variant="caption" color="text.secondary">
+                      Order started: {new Date(order.createdAt).toLocaleString()}
+                    </Typography>
+                  </Box>
+                </Box>
+              </Paper>
+            ))}
+          </Box>
         </Box>
       )}
 
       {/* Empty State */}
-      {!currentOrder && (
+      {currentOrders.length === 0 && (
         <Box sx={{ mt: 6, textAlign: "center" }}>
           <Typography variant="h6" color="text.secondary">
             No active orders yet. Start by selecting a drink or burger above!

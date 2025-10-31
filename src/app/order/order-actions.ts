@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import dbConnect from "@/utils/dbConnect";
 import Order from "@/models/Order";
 
-// Save drink selection to order
+// Save drink selection to order (creates a separate drink order)
 export async function saveDrinkSelection(drinkId: string): Promise<
   | { success: true }
   | { success: false; error: string }
@@ -19,24 +19,15 @@ export async function saveDrinkSelection(drinkId: string): Promise<
 
     await dbConnect();
 
-    // Find or create in-progress order for this user
-    let order = await Order.findOne({
+    // Create a new drink order
+    await Order.create({
       clerkUserId: userId,
       status: "in-progress",
+      orderType: "drink",
+      itemId: drinkId,
     });
 
-    if (!order) {
-      order = await Order.create({
-        clerkUserId: userId,
-        status: "in-progress",
-        drinkId,
-      });
-    } else {
-      order.drinkId = drinkId;
-      await order.save();
-    }
-
-    revalidatePath("/create/drinks");
+    revalidatePath("/order/drinks");
     return { success: true };
   } catch (error) {
     console.error("Error saving drink selection:", error);
@@ -44,7 +35,7 @@ export async function saveDrinkSelection(drinkId: string): Promise<
   }
 }
 
-// Save burger ingredients to order
+// Save burger ingredients to order (creates a separate burger order)
 export async function saveBurgerIngredients(ingredientIds: string[]): Promise<
   | { success: true }
   | { success: false; error: string }
@@ -58,23 +49,18 @@ export async function saveBurgerIngredients(ingredientIds: string[]): Promise<
 
     await dbConnect();
 
-    const order = await Order.findOne({
+    // Create a new burger order
+    await Order.create({
       clerkUserId: userId,
       status: "in-progress",
+      orderType: "burger",
+      burgerIngredients: ingredientIds,
     });
 
-    if (!order) {
-      return { success: false, error: "No active order found" };
-    }
-
-    order.burgerIngredients = ingredientIds;
-    await order.save();
-
-    revalidatePath("/create/burger");
+    revalidatePath("/order/burger");
     return { success: true };
   } catch (error) {
     console.error("Error saving burger ingredients:", error);
     return { success: false, error: "Failed to save burger ingredients" };
   }
 }
-
