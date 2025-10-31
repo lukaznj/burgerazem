@@ -12,6 +12,7 @@ interface ItemData {
   quantity: number;
   imagePath: string;
   type: string;
+  category?: string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -35,6 +36,7 @@ export async function getItemsByType(type: ItemType): Promise<
         quantity: item.quantity as number,
         imagePath: item.imagePath as string,
         type: item.type as string,
+        category: item.category as string | undefined,
         createdAt: item.createdAt?.toISOString(),
         updatedAt: item.updatedAt?.toISOString(),
       })),
@@ -52,6 +54,7 @@ export async function createItem(data: {
   quantity: number;
   imagePath: string;
   type: ItemType;
+  category?: string;
 }) {
   try {
     await dbConnect();
@@ -66,8 +69,14 @@ export async function createItem(data: {
       return { success: false, error: "Invalid item type" };
     }
 
-    const item = await Item.create(data);
-    
+    // For burger parts, set quantity to 0 since we don't track stock
+    const itemData = {
+      ...data,
+      quantity: data.type === "burgerParts" ? 0 : data.quantity,
+    };
+
+    const item = await Item.create(itemData);
+
     // Revalidate the manage page to show new data
     revalidatePath("/admin/manage");
 
@@ -91,16 +100,18 @@ export async function updateItem(
     name?: string;
     description?: string;
     quantity?: number;
+    category?: string;
   }
 ) {
   try {
     await dbConnect();
 
     // Only allow updating these fields
-    const updateData: Partial<{ name: string; description: string; quantity: number }> = {};
+    const updateData: Partial<{ name: string; description: string; quantity: number; category: string }> = {};
     if (data.name !== undefined) updateData.name = data.name;
     if (data.description !== undefined) updateData.description = data.description;
     if (data.quantity !== undefined) updateData.quantity = data.quantity;
+    if (data.category !== undefined) updateData.category = data.category;
 
     const item = await Item.findByIdAndUpdate(
       id,

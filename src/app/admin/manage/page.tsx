@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { getItemsByType, createItem, updateItem, deleteItem } from "./actions";
+import { getCategories, createCategory, deleteCategory } from "./category-actions";
 import {
   Table,
   TableBody,
@@ -23,6 +24,13 @@ import {
   IconButton,
   Fab,
   CircularProgress,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  List,
+  ListItem,
+  ListItemText,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -34,6 +42,7 @@ interface Item {
   description: string;
   quantity: number;
   imagePath: string;
+  category?: string;
 }
 
 export default function Page() {
@@ -45,27 +54,33 @@ export default function Page() {
     name: "",
     description: "",
     quantity: 0,
+    category: "",
   });
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("");
   const [drinks, setDrinks] = useState<Item[]>([]);
   const [burgerParts, setBurgerParts] = useState<Item[]>([]);
   const [deserts, setDeserts] = useState<Item[]>([]);
+  const [categories, setCategories] = useState<Array<{ _id: string; name: string }>>([]);
   const [loading, setLoading] = useState(true);
+  const [addCategoryDialogOpen, setAddCategoryDialogOpen] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
 
   // Fetch items from database
   const fetchItems = async () => {
     try {
       setLoading(true);
-      const [drinksData, burgerPartsData, desertsData] = await Promise.all([
+      const [drinksData, burgerPartsData, desertsData, categoriesData] = await Promise.all([
         getItemsByType("drinks"),
         getItemsByType("burgerParts"),
         getItemsByType("deserts"),
+        getCategories(),
       ]);
 
       if (drinksData.success && drinksData.data) setDrinks(drinksData.data);
       if (burgerPartsData.success && burgerPartsData.data) setBurgerParts(burgerPartsData.data);
       if (desertsData.success && desertsData.data) setDeserts(desertsData.data);
+      if (categoriesData.success && categoriesData.data) setCategories(categoriesData.data);
     } catch (error) {
       console.error("Error fetching items:", error);
     } finally {
@@ -87,6 +102,7 @@ export default function Page() {
       name: item.name,
       description: item.description,
       quantity: item.quantity,
+      category: item.category || "",
     });
     setEditDialogOpen(true);
   };
@@ -147,6 +163,7 @@ export default function Page() {
       name: "",
       description: "",
       quantity: 0,
+      category: "",
     });
     setSelectedImage(null);
     setImagePreview("");
@@ -227,32 +244,66 @@ export default function Page() {
     }
   };
 
-  const renderTable = (data: Item[]) => (
+  const handleAddCategory = async () => {
+    if (!newCategoryName.trim()) return;
+
+    try {
+      const result = await createCategory(newCategoryName.trim());
+      if (result.success) {
+        await fetchItems();
+        setNewCategoryName("");
+        setAddCategoryDialogOpen(false);
+      } else {
+        alert("Failed to add category: " + result.error);
+      }
+    } catch (error) {
+      console.error("Error adding category:", error);
+      alert("Failed to add category");
+    }
+  };
+
+  const handleDeleteCategory = async (categoryId: string) => {
+    if (!confirm("Are you sure you want to delete this category?")) {
+      return;
+    }
+
+    try {
+      const result = await deleteCategory(categoryId);
+      if (result.success) {
+        await fetchItems();
+      } else {
+        alert("Failed to delete category: " + result.error);
+      }
+    } catch (error) {
+      console.error("Error deleting category:", error);
+      alert("Failed to delete category");
+    }
+  };
+
+  const renderTable = (data: Item[], showQuantity: boolean = true) => (
     <TableContainer component={Paper}>
       <Table>
         <TableHead>
           <TableRow>
-            <TableCell>ID</TableCell>
             <TableCell>Name</TableCell>
             <TableCell>Description</TableCell>
-            <TableCell align="right">Quantity</TableCell>
+            {showQuantity && <TableCell align="right">Quantity</TableCell>}
             <TableCell align="center">Actions</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {data.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={5} align="center">
+              <TableCell colSpan={showQuantity ? 4 : 3} align="center">
                 No items found
               </TableCell>
             </TableRow>
           ) : (
             data.map((item) => (
               <TableRow key={item._id}>
-                <TableCell>{item._id}</TableCell>
                 <TableCell>{item.name}</TableCell>
                 <TableCell>{item.description}</TableCell>
-                <TableCell align="right">{item.quantity}</TableCell>
+                {showQuantity && <TableCell align="right">{item.quantity}</TableCell>}
                 <TableCell align="center">
                   <IconButton
                     color="primary"
@@ -287,6 +338,7 @@ export default function Page() {
           <Tab label="Drinks" />
           <Tab label="Burger Parts" />
           <Tab label="Deserts" />
+          <Tab label="Categories" />
         </Tabs>
       </Box>
       {loading ? (
@@ -295,9 +347,41 @@ export default function Page() {
         </Box>
       ) : (
         <>
-          {currentTab === 0 && renderTable(drinks)}
-          {currentTab === 1 && renderTable(burgerParts)}
-          {currentTab === 2 && renderTable(deserts)}
+          {currentTab === 0 && renderTable(drinks, true)}
+          {currentTab === 1 && renderTable(burgerParts, false)}
+          {currentTab === 2 && renderTable(deserts, false)}
+          {currentTab === 3 && (
+            <Paper>
+              <List>
+                {categories.length === 0 ? (
+                  <ListItem>
+                    <ListItemText
+                      primary="No categories yet"
+                      secondary="Click the + button to add categories for burger ingredients"
+                    />
+                  </ListItem>
+                ) : (
+                  categories.map((category) => (
+                    <ListItem
+                      key={category._id}
+                      secondaryAction={
+                        <IconButton
+                          edge="end"
+                          aria-label="delete"
+                          onClick={() => handleDeleteCategory(category._id)}
+                          color="error"
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      }
+                    >
+                      <ListItemText primary={category.name} />
+                    </ListItem>
+                  ))
+                )}
+              </List>
+            </Paper>
+          )}
         </>
       )}
 
@@ -310,7 +394,13 @@ export default function Page() {
           bottom: 32,
           right: 32,
         }}
-        onClick={handleAddClick}
+        onClick={() => {
+          if (currentTab === 3) {
+            setAddCategoryDialogOpen(true);
+          } else {
+            handleAddClick();
+          }
+        }}
       >
         <AddIcon />
       </Fab>
@@ -334,18 +424,36 @@ export default function Page() {
               value={formData.description}
               onChange={(e) => handleFormChange("description", e.target.value)}
             />
-            <TextField
-              label="Quantity"
-              type="number"
-              fullWidth
-              value={formData.quantity}
-              onChange={(e) =>
-                handleFormChange("quantity", parseInt(e.target.value) || 0)
-              }
-              slotProps={{
-                htmlInput: { min: 0, step: 1 }
-              }}
-            />
+            {currentTab !== 1 && (
+              <TextField
+                label="Quantity"
+                type="number"
+                fullWidth
+                value={formData.quantity}
+                onChange={(e) =>
+                  handleFormChange("quantity", parseInt(e.target.value) || 0)
+                }
+                slotProps={{
+                  htmlInput: { min: 0, step: 1 }
+                }}
+              />
+            )}
+            {currentTab === 1 && (
+              <FormControl fullWidth>
+                <InputLabel>Category</InputLabel>
+                <Select
+                  value={formData.category}
+                  label="Category"
+                  onChange={(e) => handleFormChange("category", e.target.value)}
+                >
+                  {categories.map((cat) => (
+                    <MenuItem key={cat._id} value={cat.name}>
+                      {cat.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            )}
           </Box>
         </DialogContent>
         <DialogActions>
@@ -377,19 +485,37 @@ export default function Page() {
               onChange={(e) => handleFormChange("description", e.target.value)}
               required
             />
-            <TextField
-              label="Quantity"
-              type="number"
-              fullWidth
-              value={formData.quantity}
-              onChange={(e) =>
-                handleFormChange("quantity", parseInt(e.target.value) || 0)
-              }
-              slotProps={{
-                htmlInput: { min: 0, step: 1 }
-              }}
-              required
-            />
+            {currentTab !== 1 && (
+              <TextField
+                label="Quantity"
+                type="number"
+                fullWidth
+                value={formData.quantity}
+                onChange={(e) =>
+                  handleFormChange("quantity", parseInt(e.target.value) || 0)
+                }
+                slotProps={{
+                  htmlInput: { min: 0, step: 1 }
+                }}
+                required
+              />
+            )}
+            {currentTab === 1 && (
+              <FormControl fullWidth required>
+                <InputLabel>Category</InputLabel>
+                <Select
+                  value={formData.category}
+                  label="Category"
+                  onChange={(e) => handleFormChange("category", e.target.value)}
+                >
+                  {categories.map((cat) => (
+                    <MenuItem key={cat._id} value={cat.name}>
+                      {cat.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            )}
             <Box>
               <Button
                 variant="outlined"
@@ -433,6 +559,34 @@ export default function Page() {
             disabled={!formData.name || !formData.description || !selectedImage}
           >
             Add Item
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Add Category Dialog */}
+      <Dialog open={addCategoryDialogOpen} onClose={() => setAddCategoryDialogOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Add New Category</DialogTitle>
+        <DialogContent>
+          <Box sx={{ pt: 2 }}>
+            <TextField
+              label="Category Name"
+              fullWidth
+              value={newCategoryName}
+              onChange={(e) => setNewCategoryName(e.target.value)}
+              placeholder="e.g., Cheeses, Sauces, Meats"
+              autoFocus
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setAddCategoryDialogOpen(false)}>Cancel</Button>
+          <Button
+            onClick={handleAddCategory}
+            variant="contained"
+            color="primary"
+            disabled={!newCategoryName.trim()}
+          >
+            Add Category
           </Button>
         </DialogActions>
       </Dialog>
