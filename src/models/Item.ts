@@ -9,6 +9,7 @@ export interface IItem extends Document {
   quantity: number;
   imagePath: string;
   type: ItemType;
+  category?: string; // For burger ingredients: "sauces", "cheeses", "meats", "vegetables", etc.
 }
 
 const ItemSchema = new Schema<IItem>(
@@ -35,6 +36,11 @@ const ItemSchema = new Schema<IItem>(
       type: String,
       enum: ["drinks", "burgerParts", "deserts"],
       required: true,
+    },
+    category: {
+      type: String,
+      required: false,
+      // For burgerParts: "sauces", "cheeses", "meats", "vegetables", "toppings", etc.
     },
   },
   {

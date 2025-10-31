@@ -1,7 +1,9 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { getDrinks } from "./actions";
+import { saveDrinkSelection } from "../order-actions";
 import {
   Box,
   Card,
@@ -25,9 +27,11 @@ interface Drink {
 }
 
 export default function Page() {
+  const router = useRouter();
   const [drinks, setDrinks] = useState<Drink[]>([]);
   const [selectedDrink, setSelectedDrink] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
   const isInitialMount = useRef(true);
 
@@ -82,12 +86,24 @@ export default function Page() {
     setSelectedDrink(drinkId);
   }, []);
 
-  const handleContinue = useCallback(() => {
-    if (selectedDrink) {
-      // TODO: Navigate to next step or save selection
-      console.log("Selected drink:", selectedDrink);
+  const handleContinue = useCallback(async () => {
+    if (selectedDrink && !saving) {
+      setSaving(true);
+      try {
+        const result = await saveDrinkSelection(selectedDrink);
+        if (result.success) {
+          router.push("/create/burger");
+        } else {
+          alert("Failed to save drink selection: " + result.error);
+          setSaving(false);
+        }
+      } catch (error) {
+        console.error("Error saving drink:", error);
+        alert("Failed to save drink selection");
+        setSaving(false);
+      }
     }
-  }, [selectedDrink]);
+  }, [selectedDrink, saving, router]);
 
   if (loading) {
     return (
@@ -166,6 +182,7 @@ export default function Page() {
                   variant="contained"
                   size="large"
                   onClick={handleContinue}
+                  disabled={saving}
                   fullWidth
                   sx={{
                     borderRadius: 0,
@@ -174,7 +191,7 @@ export default function Page() {
                     fontWeight: "bold",
                   }}
                 >
-                  Continue
+                  {saving ? "Saving..." : "Continue"}
                 </Button>
               </Box>
 
@@ -190,9 +207,10 @@ export default function Page() {
                   variant="contained"
                   size="large"
                   onClick={handleContinue}
+                  disabled={saving}
                   sx={{ minWidth: 200 }}
                 >
-                  Continue
+                  {saving ? "Saving..." : "Continue"}
                 </Button>
               </Box>
             </>
