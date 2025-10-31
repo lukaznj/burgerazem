@@ -12,6 +12,7 @@ import {
   Switch,
   Divider,
 } from "@mui/material";
+import BurgerazemLogo from "@/components/BurgerazemLogo";
 import { getBurgerIngredients } from "./actions";
 import { saveBurgerIngredients } from "../order-actions";
 import { hasInProgressOrderOfType } from "../order-status-actions";
@@ -112,9 +113,14 @@ export default function Page() {
         pb: 12, // Extra padding for fixed button
       }}
     >
-      <Typography variant="h3" component="h1" gutterBottom>
-        Složite svoj burger
-      </Typography>
+      <Box sx={{ mb: 2 }}>
+        <Typography variant="h3" component="h1" gutterBottom>
+          Složite svoj
+        </Typography>
+        <Box sx={{ ml: 2 }}>
+          <BurgerazemLogo fill="#ff8c00" width={300} height="auto" />
+        </Box>
+      </Box>
       <Typography variant="subtitle1" color="text.secondary" sx={{ mb: 4 }}>
         Odaberite sastojke koje želite na svom burgeru
       </Typography>

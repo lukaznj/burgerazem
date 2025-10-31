@@ -15,7 +15,7 @@ import {
   Divider,
 } from "@mui/material";
 import LocalBarIcon from "@mui/icons-material/LocalBar";
-import FastfoodIcon from "@mui/icons-material/Fastfood";
+import LunchDiningIcon from "@mui/icons-material/LunchDining";
 import IcecreamIcon from "@mui/icons-material/Icecream";
 import { getCurrentOrders, getDesertAvailability } from "./order-status-actions";
 
@@ -185,7 +185,7 @@ export default function Page() {
                 py: 4,
               }}
             >
-              <FastfoodIcon sx={{ fontSize: 64, color: hasInProgressBurger ? "text.disabled" : "primary.main" }} />
+              <LunchDiningIcon sx={{ fontSize: 64, color: hasInProgressBurger ? "text.disabled" : "primary.main" }} />
               <Typography variant="h5" component="h2" sx={{ fontWeight: "bold" }}>
                 Burger
               </Typography>
@@ -256,7 +256,7 @@ export default function Page() {
                   <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                     <Typography variant="h6" sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                       {order.orderType === "drink" && <LocalBarIcon color="primary" />}
-                      {order.orderType === "burger" && <FastfoodIcon color="primary" />}
+                      {order.orderType === "burger" && <LunchDiningIcon color="primary" />}
                       {order.orderType === "dessert" && <IcecreamIcon color="primary" />}
                       {order.orderType.charAt(0).toUpperCase() + order.orderType.slice(1)}
                     </Typography>

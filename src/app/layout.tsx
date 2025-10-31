@@ -1,16 +1,14 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { AppBar, Toolbar, Box, Button } from "@mui/material";
+import { AppBar, Toolbar, Box } from "@mui/material";
 import BurgerazemLogo from "@/components/BurgerazemLogo";
-import LunchDiningOutlinedIcon from "@mui/icons-material/LunchDiningOutlined";
+import LunchDiningIcon from "@mui/icons-material/LunchDining";
 import ThemeRegistry from "@/components/ThemeRegistry";
 import Link from "next/link";
 import {
   ClerkProvider,
   SignedIn,
-  SignedOut,
   UserButton,
-  SignInButton,
 } from "@clerk/nextjs";
 
 export const metadata: Metadata = {
@@ -57,37 +55,16 @@ export default function RootLayout({
                   <Box
                     sx={{ display: "flex", alignItems: "center", cursor: "pointer" }}
                   >
-                    <LunchDiningOutlinedIcon
+                    <LunchDiningIcon
                       sx={{ fontSize: 30, color: "primary.main", mr: 1 }}
                     />
                     <BurgerazemLogo fill="#ff8c00" width={150} height="auto" />
                   </Box>
                 </Link>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  {" "}
                   <SignedIn>
                     <UserButton showName />
                   </SignedIn>
-                  <SignedOut>
-
-                    <SignInButton mode="modal">
-                      <Button
-                        variant="contained"
-                        size="small"
-                        sx={{
-                          bgcolor: "primary.main",
-                          color: "#fff",
-                          fontWeight: 600,
-                          textTransform: "none",
-                          "&:hover": {
-                            bgcolor: "primary.dark",
-                          },
-                        }}
-                      >
-                        Prijavi se
-                      </Button>
-                    </SignInButton>
-                  </SignedOut>
                 </Box>
               </Toolbar>
             </AppBar>

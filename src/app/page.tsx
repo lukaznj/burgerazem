@@ -1,6 +1,6 @@
 import { Button, Typography, Box } from "@mui/material";
 import BurgerazemLogo from "@/components/BurgerazemLogo";
-import LunchDiningOutlinedIcon from "@mui/icons-material/LunchDiningOutlined";
+import LunchDiningIcon from "@mui/icons-material/LunchDining";
 import Link from "next/link";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
@@ -16,7 +16,7 @@ export default async function Home() {
   return (
     <Box
       sx={{
-        bgcolor: "#FFFDF2",
+        bgcolor: "white",
         minHeight: "100vh",
         display: "flex",
         flexDirection: "column",
@@ -39,7 +39,7 @@ export default async function Home() {
         </Typography>
         <BurgerazemLogo fill="#ff8c00" />
       </Box>
-      <LunchDiningOutlinedIcon
+      <LunchDiningIcon
         sx={{
           fontSize: 200,
           color: "primary.main",
