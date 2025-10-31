@@ -330,12 +330,12 @@ export default function Page() {
           </Box>
         </Box>
       )}
-            Još nema aktivnih narudžbi. Počnite odabirom pića ili burgera!
+
       {/* Empty State */}
       {currentOrders.length === 0 && (
         <Box sx={{ mt: 6, textAlign: "center" }}>
           <Typography variant="h6" color="text.secondary">
-            No active orders yet. Start by selecting a drink or burger above!
+            Još nema aktivnih narudžbi. Počnite odabirom pića ili burgera!
           </Typography>
         </Box>
       )}
