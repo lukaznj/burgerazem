@@ -113,16 +113,16 @@ export default function Page() {
       }}
     >
       <Typography variant="h3" component="h1" gutterBottom>
-        Build Your Burger
+        Složite svoj burger
       </Typography>
       <Typography variant="subtitle1" color="text.secondary" sx={{ mb: 4 }}>
-        Select the ingredients you want on your burger
+        Odaberite sastojke koje želite na svom burgeru
       </Typography>
 
       {categories.length === 0 ? (
         <Box sx={{ textAlign: "center", py: 8 }}>
           <Typography variant="h6" color="text.secondary">
-            No ingredients available at the moment
+            Trenutno nema dostupnih sastojaka
           </Typography>
         </Box>
       ) : (
@@ -239,7 +239,7 @@ export default function Page() {
                 fontWeight: "bold",
               }}
             >
-              {saving ? "Saving..." : "Continue"}
+              {saving ? "Spremanje..." : "Nastavi"}
             </Button>
           </Box>
 
@@ -258,7 +258,7 @@ export default function Page() {
               disabled={saving}
               sx={{ minWidth: 200 }}
             >
-              {saving ? "Saving..." : "Continue"}
+              {saving ? "Spremanje..." : "Nastavi"}
             </Button>
           </Box>
         </>

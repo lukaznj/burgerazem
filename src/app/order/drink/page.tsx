@@ -136,16 +136,16 @@ export default function Page() {
       }}
     >
       <Typography variant="h3" component="h1" gutterBottom>
-        Choose Your Drink
+        Odaberite svoje piće
       </Typography>
       <Typography variant="subtitle1" color="text.secondary" sx={{ mb: 4 }}>
-        Select one drink to accompany your meal
+        Odaberite jedno piće uz vaš obrok
       </Typography>
 
       {drinks.length === 0 ? (
         <Box sx={{ textAlign: "center", py: 8 }}>
           <Typography variant="h6" color="text.secondary">
-            No drinks available at the moment
+            Trenutno nema dostupnih pića
           </Typography>
         </Box>
       ) : (
@@ -203,7 +203,7 @@ export default function Page() {
                     fontWeight: "bold",
                   }}
                 >
-                  {saving ? "Saving..." : "Continue"}
+                  {saving ? "Spremanje..." : "Nastavi"}
                 </Button>
               </Box>
 
@@ -222,7 +222,7 @@ export default function Page() {
                   disabled={saving}
                   sx={{ minWidth: 200 }}
                 >
-                  {saving ? "Saving..." : "Continue"}
+                  {saving ? "Spremanje..." : "Nastavi"}
                 </Button>
               </Box>
             </>
@@ -292,7 +292,7 @@ const DrinkCard = React.memo(({ drink, isSelected, isOtherSelected, onSelect }: 
                 {drink.name}
               </Typography>
               <Chip
-                label={`${drink.quantity} left`}
+                label={`Preostalo: ${drink.quantity}`}
                 size="small"
                 color={drink.quantity < 5 ? "warning" : "success"}
               />

@@ -23,5 +23,5 @@ export async function createNewOrderAction(formData: FormData) {
     throw new Error("Failed to start new order due to a server error.");
   }
 
-  redirect("/order/drinks");
+  redirect("/order/drink");
 }

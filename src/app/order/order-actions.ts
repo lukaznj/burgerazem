@@ -27,7 +27,7 @@ export async function saveDrinkSelection(drinkId: string): Promise<
       itemId: drinkId,
     });
 
-    revalidatePath("/order/drinks");
+    revalidatePath("/order/drink");
     return { success: true };
   } catch (error) {
     console.error("Error saving drink selection:", error);
@@ -62,5 +62,35 @@ export async function saveBurgerIngredients(ingredientIds: string[]): Promise<
   } catch (error) {
     console.error("Error saving burger ingredients:", error);
     return { success: false, error: "Failed to save burger ingredients" };
+  }
+}
+
+// Save desert selection to order (creates a separate desert order)
+export async function saveDesertSelection(desertId: string): Promise<
+  | { success: true }
+  | { success: false; error: string }
+> {
+  try {
+    const { userId } = await auth();
+
+    if (!userId) {
+      return { success: false, error: "Not authenticated" };
+    }
+
+    await dbConnect();
+
+    // Create a new desert order
+    await Order.create({
+      clerkUserId: userId,
+      status: "in-progress",
+      orderType: "dessert",
+      itemId: desertId,
+    });
+
+    revalidatePath("/order/desert");
+    return { success: true };
+  } catch (error) {
+    console.error("Error saving desert selection:", error);
+    return { success: false, error: "Failed to save desert selection" };
   }
 }

@@ -16,6 +16,9 @@ import {
 export const metadata: Metadata = {
   title: "Burgeražem",
   description: "Sastavi vlastiti Burgeražem!",
+  icons: {
+    icon: '/favicon.svg',
+  },
 };
 
 const APP_BAR_HEIGHT = "56px";

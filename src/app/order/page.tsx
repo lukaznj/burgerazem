@@ -17,7 +17,7 @@ import {
 import LocalBarIcon from "@mui/icons-material/LocalBar";
 import FastfoodIcon from "@mui/icons-material/Fastfood";
 import IcecreamIcon from "@mui/icons-material/Icecream";
-import { getCurrentOrders } from "./order-status-actions";
+import { getCurrentOrders, getDesertAvailability } from "./order-status-actions";
 
 interface OrderData {
   _id: string;
@@ -38,6 +38,8 @@ export default function Page() {
   const [currentOrders, setCurrentOrders] = useState<OrderData[]>([]);
   const [hasInProgressDrink, setHasInProgressDrink] = useState(false);
   const [hasInProgressBurger, setHasInProgressBurger] = useState(false);
+  const [hasInProgressDessert, setHasInProgressDessert] = useState(false);
+  const [desertsEnabled, setDesertsEnabled] = useState(false);
 
   useEffect(() => {
     const fetchOrderStatus = async (isInitial = false) => {
@@ -45,16 +47,23 @@ export default function Page() {
         if (isInitial) {
           setLoading(true);
         }
-        const result = await getCurrentOrders();
-        if (result.success) {
+        const [ordersResult, desertAvailability] = await Promise.all([
+          getCurrentOrders(),
+          getDesertAvailability(),
+        ]);
+
+        if (ordersResult.success) {
           // Only update state if orders actually changed
           setCurrentOrders(prevOrders => {
-            const hasChanged = JSON.stringify(prevOrders) !== JSON.stringify(result.data);
-            return hasChanged ? result.data : prevOrders;
+            const hasChanged = JSON.stringify(prevOrders) !== JSON.stringify(ordersResult.data);
+            return hasChanged ? ordersResult.data : prevOrders;
           });
-          setHasInProgressDrink(result.hasInProgressDrink);
-          setHasInProgressBurger(result.hasInProgressBurger);
+          setHasInProgressDrink(ordersResult.hasInProgressDrink);
+          setHasInProgressBurger(ordersResult.hasInProgressBurger);
+          setHasInProgressDessert(ordersResult.hasInProgressDessert);
         }
+
+        setDesertsEnabled(desertAvailability);
       } catch (error) {
         console.error("Error fetching order status:", error);
       } finally {
@@ -77,11 +86,12 @@ export default function Page() {
 
   const handleOrderClick = (type: "drink" | "burger" | "desert") => {
     if (type === "drink" && !hasInProgressDrink) {
-      router.push("/order/drinks");
+      router.push("/order/drink");
     } else if (type === "burger" && !hasInProgressBurger) {
       router.push("/order/burger");
+    } else if (type === "desert" && desertsEnabled && !hasInProgressDessert) {
+      router.push("/order/desert");
     }
-    // Desert is disabled for now
   };
 
   if (loading) {
@@ -102,7 +112,7 @@ export default function Page() {
         gutterBottom
         sx={{ fontWeight: "bold", textAlign: "center", mb: 4 }}
       >
-        Want to Order More?
+        Naruči još!
       </Typography>
 
       {/* Order Type Cards */}
@@ -141,10 +151,10 @@ export default function Page() {
             >
               <LocalBarIcon sx={{ fontSize: 64, color: hasInProgressDrink ? "text.disabled" : "primary.main" }} />
               <Typography variant="h5" component="h2" sx={{ fontWeight: "bold" }}>
-                Drink
+                Piće
               </Typography>
               {hasInProgressDrink && (
-                <Chip label="In Progress" size="small" color="warning" />
+                <Chip label="U tijeku" size="small" color="warning" />
               )}
             </CardContent>
           </CardActionArea>
@@ -180,15 +190,28 @@ export default function Page() {
                 Burger
               </Typography>
               {hasInProgressBurger && (
-                <Chip label="In Progress" size="small" color="warning" />
+                <Chip label="U tijeku" size="small" color="warning" />
               )}
             </CardContent>
           </CardActionArea>
         </Card>
 
-        {/* Desert Card - Disabled */}
-        <Card sx={{ opacity: 0.5 }}>
-          <CardActionArea disabled sx={{ height: "100%" }}>
+        {/* Desert Card */}
+        <Card
+          sx={{
+            opacity: (!desertsEnabled || hasInProgressDessert) ? 0.5 : 1,
+            transition: "all 0.3s",
+            "&:hover": {
+              transform: (!desertsEnabled || hasInProgressDessert) ? "none" : "translateY(-4px)",
+              boxShadow: (!desertsEnabled || hasInProgressDessert) ? 1 : 4,
+            },
+          }}
+        >
+          <CardActionArea
+            onClick={() => handleOrderClick("desert")}
+            disabled={!desertsEnabled || hasInProgressDessert}
+            sx={{ height: "100%" }}
+          >
             <CardContent
               sx={{
                 display: "flex",
@@ -198,11 +221,21 @@ export default function Page() {
                 py: 4,
               }}
             >
-              <IcecreamIcon sx={{ fontSize: 64, color: "text.disabled" }} />
+              <IcecreamIcon
+                sx={{
+                  fontSize: 64,
+                  color: (!desertsEnabled || hasInProgressDessert) ? "text.disabled" : "primary.main"
+                }}
+              />
               <Typography variant="h5" component="h2" sx={{ fontWeight: "bold" }}>
                 Desert
               </Typography>
-              <Chip label="Coming Soon" size="small" />
+              {!desertsEnabled && (
+                <Chip label="Nedostupno" size="small" color="default" />
+              )}
+              {desertsEnabled && hasInProgressDessert && (
+                <Chip label="U tijeku" size="small" color="warning" />
+              )}
             </CardContent>
           </CardActionArea>
         </Card>
@@ -212,7 +245,7 @@ export default function Page() {
       {currentOrders.length > 0 && (
         <Box sx={{ mt: 6 }}>
           <Typography variant="h4" component="h2" gutterBottom sx={{ fontWeight: "bold", mb: 3 }}>
-            Current Orders
+            Trenutne narudžbe
           </Typography>
 
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
@@ -228,7 +261,12 @@ export default function Page() {
                       {order.orderType.charAt(0).toUpperCase() + order.orderType.slice(1)}
                     </Typography>
                     <Chip
-                      label={order.status === "in-progress" ? "In Progress" : order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                      label={
+                        order.status === "in-progress" ? "U tijeku" :
+                        order.status === "completed" ? "Završeno" :
+                        order.status === "canceled" ? "Otkazano" :
+                        order.status
+                      }
                       color={
                         order.status === "in-progress" ? "warning" :
                         order.status === "completed" ? "success" :
@@ -265,7 +303,7 @@ export default function Page() {
                   {order.orderType === "burger" && order.burgerIngredients && order.burgerIngredients.length > 0 && (
                     <Box sx={{ ml: 4 }}>
                       <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                        Ingredients ({order.burgerIngredients.length}):
+                        Sastojci ({order.burgerIngredients.length}):
                       </Typography>
                       <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mt: 1 }}>
                         {order.burgerIngredients.map((ingredient, idx) => (
@@ -283,7 +321,7 @@ export default function Page() {
                   {/* Order Time */}
                   <Box sx={{ mt: 1, pt: 2, borderTop: 1, borderColor: "divider" }}>
                     <Typography variant="caption" color="text.secondary">
-                      Order started: {new Date(order.createdAt).toLocaleString()}
+                      Naručeno: {new Date(order.createdAt).toLocaleString('hr-HR')}
                     </Typography>
                   </Box>
                 </Box>
@@ -292,7 +330,7 @@ export default function Page() {
           </Box>
         </Box>
       )}
-
+            Još nema aktivnih narudžbi. Počnite odabirom pića ili burgera!
       {/* Empty State */}
       {currentOrders.length === 0 && (
         <Box sx={{ mt: 6, textAlign: "center" }}>

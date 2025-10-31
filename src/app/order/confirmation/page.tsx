@@ -28,11 +28,11 @@ export default function Page() {
         />
 
         <Typography variant="h3" component="h1" gutterBottom>
-          Order Complete!
+          Narudžba završena!
         </Typography>
 
         <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
-          Your order has been successfully placed. Enjoy your meal!
+          Vaša narudžba je uspješno zaprimljena. Uživajte u svom obroku!
         </Typography>
 
         <Button
@@ -40,7 +40,7 @@ export default function Page() {
           size="large"
           onClick={() => router.push("/order")}
         >
-          Back to Orders
+          Povratak na narudžbe
         </Button>
       </Box>
     </Container>

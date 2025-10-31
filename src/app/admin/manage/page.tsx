@@ -234,13 +234,13 @@ export default function Page() {
   const getItemType = () => {
     switch (currentTab) {
       case 0:
-        return "Drink";
+        return "piće";
       case 1:
-        return "Burger Part";
+        return "dio burgera";
       case 2:
-        return "Desert";
+        return "desert";
       default:
-        return "Item";
+        return "artikl";
     }
   };
 
@@ -285,17 +285,17 @@ export default function Page() {
       <Table>
         <TableHead>
           <TableRow>
-            <TableCell>Name</TableCell>
-            <TableCell>Description</TableCell>
-            {showQuantity && <TableCell align="right">Quantity</TableCell>}
-            <TableCell align="center">Actions</TableCell>
+            <TableCell>Naziv</TableCell>
+            <TableCell>Opis</TableCell>
+            {showQuantity && <TableCell align="right">Količina</TableCell>}
+            <TableCell align="center">Akcije</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {data.length === 0 ? (
             <TableRow>
               <TableCell colSpan={showQuantity ? 4 : 3} align="center">
-                No items found
+                Nema pronađenih artikala
               </TableCell>
             </TableRow>
           ) : (
@@ -331,14 +331,14 @@ export default function Page() {
   return (
     <Box sx={{ p: 4 }}>
       <Typography variant="h3" component="h1" sx={{ mb: 4 }}>
-        Manage Items
+        Upravljanje artiklima
       </Typography>
       <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 3 }}>
         <Tabs value={currentTab} onChange={handleTabChange}>
-          <Tab label="Drinks" />
-          <Tab label="Burger Parts" />
-          <Tab label="Deserts" />
-          <Tab label="Categories" />
+          <Tab label="Pića" />
+          <Tab label="Burger dijelovi" />
+          <Tab label="Deserti" />
+          <Tab label="Kategorije" />
         </Tabs>
       </Box>
       {loading ? (
@@ -356,8 +356,8 @@ export default function Page() {
                 {categories.length === 0 ? (
                   <ListItem>
                     <ListItemText
-                      primary="No categories yet"
-                      secondary="Click the + button to add categories for burger ingredients"
+                      primary="Još nema kategorija"
+                      secondary="Kliknite + gumb za dodavanje kategorija za sastojke burgera"
                     />
                   </ListItem>
                 ) : (
@@ -407,17 +407,17 @@ export default function Page() {
 
       {/* Edit Dialog */}
       <Dialog open={editDialogOpen} onClose={handleEditClose} maxWidth="sm" fullWidth>
-        <DialogTitle>Edit Item</DialogTitle>
+        <DialogTitle>Uredi artikl</DialogTitle>
         <DialogContent>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2, pt: 2 }}>
             <TextField
-              label="Name"
+              label="Naziv"
               fullWidth
               value={formData.name}
               onChange={(e) => handleFormChange("name", e.target.value)}
             />
             <TextField
-              label="Description"
+              label="Opis"
               fullWidth
               multiline
               rows={3}
@@ -426,7 +426,7 @@ export default function Page() {
             />
             {currentTab === 0 && (
               <TextField
-                label="Quantity"
+                label="Količina"
                 type="number"
                 fullWidth
                 value={formData.quantity}
@@ -440,10 +440,10 @@ export default function Page() {
             )}
             {currentTab === 1 && (
               <FormControl fullWidth>
-                <InputLabel>Category</InputLabel>
+                <InputLabel>Kategorija</InputLabel>
                 <Select
                   value={formData.category}
-                  label="Category"
+                  label="Kategorija"
                   onChange={(e) => handleFormChange("category", e.target.value)}
                 >
                   {categories.map((cat) => (
@@ -457,27 +457,27 @@ export default function Page() {
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleEditClose}>Cancel</Button>
+          <Button onClick={handleEditClose}>Odustani</Button>
           <Button onClick={handleSaveEdit} variant="contained" color="primary">
-            Save
+            Spremi
           </Button>
         </DialogActions>
       </Dialog>
 
       {/* Add Dialog */}
       <Dialog open={addDialogOpen} onClose={handleAddClose} maxWidth="sm" fullWidth>
-        <DialogTitle>Add New {getItemType()}</DialogTitle>
+        <DialogTitle>Dodaj novi {getItemType()}</DialogTitle>
         <DialogContent>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2, pt: 2 }}>
             <TextField
-              label="Name"
+              label="Naziv"
               fullWidth
               value={formData.name}
               onChange={(e) => handleFormChange("name", e.target.value)}
               required
             />
             <TextField
-              label="Description"
+              label="Opis"
               fullWidth
               multiline
               rows={3}
@@ -487,7 +487,7 @@ export default function Page() {
             />
             {currentTab === 0 && (
               <TextField
-                label="Quantity"
+                label="Količina"
                 type="number"
                 fullWidth
                 value={formData.quantity}
@@ -502,10 +502,10 @@ export default function Page() {
             )}
             {currentTab === 1 && (
               <FormControl fullWidth required>
-                <InputLabel>Category</InputLabel>
+                <InputLabel>Kategorija</InputLabel>
                 <Select
                   value={formData.category}
-                  label="Category"
+                  label="Kategorija"
                   onChange={(e) => handleFormChange("category", e.target.value)}
                 >
                   {categories.map((cat) => (
@@ -522,7 +522,7 @@ export default function Page() {
                 component="label"
                 fullWidth
               >
-                Upload Image
+                Prenesi sliku
                 <input
                   type="file"
                   hidden
@@ -533,12 +533,12 @@ export default function Page() {
               {imagePreview && (
                 <Box sx={{ mt: 2, textAlign: "center" }}>
                   <Typography variant="body2" sx={{ mb: 1 }}>
-                    Preview:
+                    Pregled:
                   </Typography>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={imagePreview}
-                    alt="Preview"
+                    alt="Pregled"
                     style={{
                       maxWidth: "100%",
                       maxHeight: "200px",
@@ -551,42 +551,42 @@ export default function Page() {
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleAddClose}>Cancel</Button>
+          <Button onClick={handleAddClose}>Odustani</Button>
           <Button
             onClick={handleSaveAdd}
             variant="contained"
             color="primary"
             disabled={!formData.name || !formData.description || !selectedImage}
           >
-            Add Item
+            Dodaj artikl
           </Button>
         </DialogActions>
       </Dialog>
 
       {/* Add Category Dialog */}
       <Dialog open={addCategoryDialogOpen} onClose={() => setAddCategoryDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Add New Category</DialogTitle>
+        <DialogTitle>Dodaj novu kategoriju</DialogTitle>
         <DialogContent>
           <Box sx={{ pt: 2 }}>
             <TextField
-              label="Category Name"
+              label="Naziv kategorije"
               fullWidth
               value={newCategoryName}
               onChange={(e) => setNewCategoryName(e.target.value)}
-              placeholder="e.g., Cheeses, Sauces, Meats"
+              placeholder="npr. Sirevi, Umaci, Meso"
               autoFocus
             />
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setAddCategoryDialogOpen(false)}>Cancel</Button>
+          <Button onClick={() => setAddCategoryDialogOpen(false)}>Odustani</Button>
           <Button
             onClick={handleAddCategory}
             variant="contained"
             color="primary"
             disabled={!newCategoryName.trim()}
           >
-            Add Category
+            Dodaj kategoriju
           </Button>
         </DialogActions>
       </Dialog>

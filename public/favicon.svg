@@ -1,0 +1,19 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Burger icon in orange #ff8c00 -->
+  <!-- Top bun -->
+  <path d="M16 4C10 4 6 6 4 9C4 9 4 10 5 10H27C28 10 28 9 28 9C26 6 22 4 16 4Z" fill="#ff8c00"/>
+
+  <!-- Lettuce -->
+  <path d="M4 11H28V13H4V11Z" fill="#ff8c00" opacity="0.8"/>
+
+  <!-- Patty -->
+  <path d="M4 14H28V17H4V14Z" fill="#ff8c00"/>
+
+  <!-- Cheese -->
+  <path d="M4 18H28V20H4V18Z" fill="#ff8c00" opacity="0.9"/>
+
+  <!-- Bottom bun -->
+  <path d="M4 21C4 21 4 22 5 23H27C28 22 28 21 28 21H4Z" fill="#ff8c00"/>
+  <path d="M5 23C5 25 8 28 16 28C24 28 27 25 27 23H5Z" fill="#ff8c00"/>
+</svg>
+

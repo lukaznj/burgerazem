@@ -5,6 +5,7 @@ import { Types } from "mongoose";
 import dbConnect from "@/utils/dbConnect";
 import Order from "@/models/Order";
 import Item from "@/models/Item";
+import Settings from "@/models/Settings";
 
 interface OrderWithDetails {
   _id: string;
@@ -17,6 +18,19 @@ interface OrderWithDetails {
     category: string;
   }>;
   createdAt: string;
+}
+
+
+// Get desert availability setting (public - no admin required)
+export async function getDesertAvailability(): Promise<boolean> {
+  try {
+    await dbConnect();
+    const setting = await Settings.findOne({ key: "desertsEnabled" });
+    return setting?.value ?? true; // Default to true if not set
+  } catch (error) {
+    console.error("Error fetching desert availability:", error);
+    return true; // Default to true on error
+  }
 }
 
 // Check if user has in-progress order of specific type
@@ -45,7 +59,7 @@ export async function hasInProgressOrderOfType(orderType: "drink" | "burger" | "
 
 // Get current user's recent orders with details (in-progress, completed, canceled from last 24h)
 export async function getCurrentOrders(): Promise<
-  | { success: true; data: OrderWithDetails[]; hasInProgressDrink: boolean; hasInProgressBurger: boolean }
+  | { success: true; data: OrderWithDetails[]; hasInProgressDrink: boolean; hasInProgressBurger: boolean; hasInProgressDessert: boolean }
   | { success: false; error: string }
 > {
   try {
@@ -77,12 +91,14 @@ export async function getCurrentOrders(): Promise<
         data: [],
         hasInProgressDrink: false,
         hasInProgressBurger: false,
+        hasInProgressDessert: false,
       };
     }
 
     const ordersWithDetails: OrderWithDetails[] = [];
     let hasInProgressDrink = false;
     let hasInProgressBurger = false;
+    let hasInProgressDessert = false;
 
     for (const order of orders) {
       if (order.orderType === "drink") {
@@ -108,6 +124,9 @@ export async function getCurrentOrders(): Promise<
             _id: { $in: order.burgerIngredients }
           }).lean() as any[];
 
+        if (order.status === "in-progress") {
+          hasInProgressDessert = true;
+        }
           for (const ing of ingredients) {
             burgerIngredients.push({
               name: ing.name,
@@ -123,6 +142,9 @@ export async function getCurrentOrders(): Promise<
           createdAt: order.createdAt?.toISOString() || new Date().toISOString(),
         });
       } else if (order.orderType === "dessert") {
+        if (order.status === "in-progress") {
+          hasInProgressDessert = true;
+        }
         const dessert = await Item.findById(order.itemId).lean() as any;
         ordersWithDetails.push({
           _id: order._id.toString(),
@@ -140,6 +162,7 @@ export async function getCurrentOrders(): Promise<
       data: ordersWithDetails,
       hasInProgressDrink,
       hasInProgressBurger,
+      hasInProgressDessert,
     };
   } catch (error) {
     console.error("Error fetching current orders:", error);

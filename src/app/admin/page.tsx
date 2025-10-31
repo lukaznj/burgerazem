@@ -212,7 +212,7 @@ export default function AdminPage() {
         <Box display="flex" flexWrap="wrap" gap={2}>
           {orders.filter(o => o.orderType === "burger").length === 0 ? (
             <Typography variant="body2" color="text.secondary">
-              No burger orders found
+              Nema burger narudžbi
             </Typography>
           ) : (
             orders.filter(o => o.orderType === "burger").map((order) => (
@@ -231,7 +231,7 @@ export default function AdminPage() {
                     </Box>
 
                     <Typography variant="body2" color="text.secondary" gutterBottom>
-                      Burger Ingredients:
+                      Sastojci burgera:
                     </Typography>
 
                     <Box mb={2} display="flex" flexWrap="wrap" gap={0.5}>
@@ -245,7 +245,7 @@ export default function AdminPage() {
                           />
                         ))
                       ) : (
-                        <Typography variant="body2">No ingredients</Typography>
+                        <Typography variant="body2">Nema sastojaka</Typography>
                       )}
                     </Box>
 
@@ -285,12 +285,12 @@ export default function AdminPage() {
       {/* Drink Orders */}
       <Box mb={4}>
         <Typography variant="h5" gutterBottom>
-          Drink Orders ({orders.filter(o => o.orderType === "drink").length})
+          Narudžbe pića ({orders.filter(o => o.orderType === "drink").length})
         </Typography>
         <Box display="flex" flexWrap="wrap" gap={2}>
           {orders.filter(o => o.orderType === "drink").length === 0 ? (
             <Typography variant="body2" color="text.secondary">
-              No drink orders found
+              Nema narudžbi pića
             </Typography>
           ) : (
             orders.filter(o => o.orderType === "drink").map((order) => (
@@ -328,9 +328,9 @@ export default function AdminPage() {
                         variant="outlined"
                         sx={{ flex: 1 }}
                       >
-                        <MenuItem value="in-progress">In Progress</MenuItem>
-                        <MenuItem value="completed">Completed</MenuItem>
-                        <MenuItem value="canceled">Canceled</MenuItem>
+                        <MenuItem value="in-progress">U tijeku</MenuItem>
+                        <MenuItem value="completed">Završeno</MenuItem>
+                        <MenuItem value="canceled">Otkazano</MenuItem>
                       </Select>
 
                       <IconButton
@@ -352,12 +352,12 @@ export default function AdminPage() {
       {/* Dessert Orders */}
       <Box mb={4}>
         <Typography variant="h5" gutterBottom>
-          Dessert Orders ({orders.filter(o => o.orderType === "dessert").length})
+          Narudžbe deserta ({orders.filter(o => o.orderType === "dessert").length})
         </Typography>
         <Box display="flex" flexWrap="wrap" gap={2}>
           {orders.filter(o => o.orderType === "dessert").length === 0 ? (
             <Typography variant="body2" color="text.secondary">
-              No dessert orders found
+              Nema narudžbi deserta
             </Typography>
           ) : (
             orders.filter(o => o.orderType === "dessert").map((order) => (
@@ -395,9 +395,9 @@ export default function AdminPage() {
                         variant="outlined"
                         sx={{ flex: 1 }}
                       >
-                        <MenuItem value="in-progress">In Progress</MenuItem>
-                        <MenuItem value="completed">Completed</MenuItem>
-                        <MenuItem value="canceled">Canceled</MenuItem>
+                        <MenuItem value="in-progress">U tijeku</MenuItem>
+                        <MenuItem value="completed">Završeno</MenuItem>
+                        <MenuItem value="canceled">Otkazano</MenuItem>
                       </Select>
 
                       <IconButton
