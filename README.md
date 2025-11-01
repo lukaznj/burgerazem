@@ -146,32 +146,32 @@ NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/order
 NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/order
 ```
 
-4. **Pokrenite development server**
+4. **Run the development server**
 ```bash
 npm run dev
 ```
 
-Aplikacija će biti dostupna na `http://localhost:3000`
+The application will be available at `http://localhost:3000`
 
 ---
 
-## ⚙️ Konfiguracija
+## ⚙️ Configuration
 
-### MongoDB kolekcije
+### MongoDB Collections
 
-Aplikacija automatski kreira sljedeće kolekcije:
+The application automatically creates the following collections:
 
-1. **items** - Pića, burger sastojci i deserti
-2. **orders** - Sve narudžbe
-3. **categories** - Kategorije burger sastojaka
-4. **settings** - Postavke aplikacije
-5. **admins** - Admin korisnici
+1. **items** - Drinks, burger ingredients, and desserts
+2. **orders** - All orders
+3. **categories** - Burger ingredient categories
+4. **settings** - Application settings
+5. **admins** - Admin users
 
-### Postavljanje prvog admina
+### Setting Up the First Admin
 
-1. Prijavite se u aplikaciju kao korisnik
-2. Pronađite svoj Clerk User ID u MongoDB ili konzoli
-3. Dodajte dokument u `admins` kolekciju:
+1. Sign in to the application as a user
+2. Find your Clerk User ID in MongoDB or the console
+3. Add a document to the `admins` collection:
 
 ```javascript
 {
@@ -180,11 +180,11 @@ Aplikacija automatski kreira sljedeće kolekcije:
 }
 ```
 
-### Omogućavanje deserta
+### Enabling Desserts
 
-Deserti su po defaultu omogućeni. Za promjenu:
-1. Idite na `/admin`
-2. Toggle "Omogući naručivanje deserta"
+Desserts are enabled by default. To change:
+1. Go to `/admin`
+2. Toggle "Enable Desserts Ordering"
 
 ---
 
