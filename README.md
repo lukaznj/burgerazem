@@ -1,5 +1,7 @@
 # 🍔 Burgeražem
 
+Fun little vibecoded app for when I make burgers at home for my friends.
+
 **Build Your Own Burgeražem!** - A custom burger ordering application with drinks and desserts.
 
 [![Next.js](https://img.shields.io/badge/Next.js-14-black)](https://nextjs.org/)
