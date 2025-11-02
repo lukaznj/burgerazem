@@ -104,7 +104,7 @@ export default function Page() {
       try {
         const result = await saveDrinkSelection(selectedDrink);
         if (result.success) {
-          router.push("/order/burger");
+          router.push("/order");
         } else {
           alert("Failed to save drink selection: " + result.error);
           setSaving(false);

@@ -54,21 +54,29 @@ export default function AdminPage() {
   const [desertsEnabled, setDesertsEnabled] = useState(true);
   const [settingsLoading, setSettingsLoading] = useState(false);
 
-  const fetchOrders = async () => {
+  const fetchOrders = async (isInitial = false) => {
     try {
-      setLoading(true);
+      if (isInitial) {
+        setLoading(true);
+      }
       setError(null);
       const result = await getAllOrders();
 
       if (result.success && result.data) {
-        setOrders(result.data);
+        // Only update state if orders actually changed to prevent unnecessary rerenders
+        setOrders(prevOrders => {
+          const hasChanged = JSON.stringify(prevOrders) !== JSON.stringify(result.data);
+          return hasChanged ? result.data : prevOrders;
+        });
       } else {
         setError((result as { error?: string }).error || "Failed to fetch orders");
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
-      setLoading(false);
+      if (isInitial) {
+        setLoading(false);
+      }
     }
   };
 
@@ -84,8 +92,17 @@ export default function AdminPage() {
   };
 
   useEffect(() => {
-    fetchOrders();
+    // Initial fetch
+    fetchOrders(true);
     fetchSettings();
+
+    // Poll for updates every 3 seconds
+    const interval = setInterval(() => {
+      fetchOrders(false);
+    }, 3000);
+
+    // Cleanup interval on unmount
+    return () => clearInterval(interval);
   }, []);
 
   const handleStatusChange = async (orderId: string, newStatus: string) => {
@@ -178,7 +195,7 @@ export default function AdminPage() {
         <Typography variant="h4" component="h1" fontWeight="bold">
           Admin Dashboard
         </Typography>
-        <IconButton onClick={fetchOrders} color="primary">
+        <IconButton onClick={() => fetchOrders(false)} color="primary">
           <RefreshIcon />
         </IconButton>
       </Box>
@@ -187,7 +204,7 @@ export default function AdminPage() {
       <Card sx={{ mb: 4 }}>
         <CardContent>
           <Typography variant="h6" gutterBottom>
-            Settings
+            Postavke
           </Typography>
           <Divider sx={{ mb: 2 }} />
           <FormControlLabel
@@ -198,7 +215,7 @@ export default function AdminPage() {
                 disabled={settingsLoading}
               />
             }
-            label="Enable Deserts Ordering"
+            label="Omogući naručivanje deserta"
           />
           {settingsLoading && <CircularProgress size={20} sx={{ ml: 2 }} />}
         </CardContent>
@@ -207,7 +224,7 @@ export default function AdminPage() {
       {/* Burger Orders */}
       <Box mb={4}>
         <Typography variant="h5" gutterBottom>
-          Burger Orders ({orders.filter(o => o.orderType === "burger").length})
+          Narudžbe burgera ({orders.filter(o => o.orderType === "burger").length})
         </Typography>
         <Box display="flex" flexWrap="wrap" gap={2}>
           {orders.filter(o => o.orderType === "burger").length === 0 ? (
@@ -261,9 +278,9 @@ export default function AdminPage() {
                         variant="outlined"
                         sx={{ flex: 1 }}
                       >
-                        <MenuItem value="in-progress">In Progress</MenuItem>
-                        <MenuItem value="completed">Completed</MenuItem>
-                        <MenuItem value="canceled">Canceled</MenuItem>
+                        <MenuItem value="in-progress">U tijeku</MenuItem>
+                        <MenuItem value="completed">Završeno</MenuItem>
+                        <MenuItem value="canceled">Otkazano</MenuItem>
                       </Select>
 
                       <IconButton
@@ -309,11 +326,11 @@ export default function AdminPage() {
                     </Box>
 
                     <Typography variant="body2" color="text.secondary" gutterBottom>
-                      Item:
+                      Piće:
                     </Typography>
 
                     <Typography variant="h6" mb={2}>
-                      {order.itemId?.name || "Unknown Item"}
+                      {order.itemId?.name || "Nepoznato piće"}
                     </Typography>
 
                     <Typography variant="caption" color="text.secondary" display="block" mb={2}>
@@ -376,11 +393,11 @@ export default function AdminPage() {
                     </Box>
 
                     <Typography variant="body2" color="text.secondary" gutterBottom>
-                      Item:
+                      Desert:
                     </Typography>
 
                     <Typography variant="h6" mb={2}>
-                      {order.itemId?.name || "Unknown Item"}
+                      {order.itemId?.name || "Nepoznat desert"}
                     </Typography>
 
                     <Typography variant="caption" color="text.secondary" display="block" mb={2}>

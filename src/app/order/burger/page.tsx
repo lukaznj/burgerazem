@@ -124,6 +124,9 @@ export default function Page() {
       <Typography variant="subtitle1" color="text.secondary" sx={{ mb: 4 }}>
         Odaberite sastojke koje želite na svom burgeru
       </Typography>
+        <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 4 }}>
+            *Sve narudžbe burgera dolaze s pomfritom
+        </Typography>
 
       {categories.length === 0 ? (
         <Box sx={{ textAlign: "center", py: 8 }}>
